@@ -7,8 +7,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('/local/signup')
   public async signup(@Body() dto: AuthDto): Promise<Tokens> {
-    // return this.authService.signup(dto);
-    return;
+    return this.authService.signup(dto);
   }
   @Post('/local/signin')
   public async signin() {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AuthDto } from './types';
+import { AuthDto, Tokens } from './types';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -16,7 +16,7 @@ export class AuthService {
   hashData(data: string) {
     return bcrypt.hash(data, 10);
   }
-  async getTokens(userId: number, email: string) {
+  async getTokens(userId: number, email: string): Promise<Tokens> {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
         {
@@ -24,7 +24,7 @@ export class AuthService {
           email: email,
         },
         {
-          secret: this.configService.get('ACCESS_TOKEN_SCRET'),
+          secret: this.configService.get('ACCESS_TOKEN_SECRET'),
           expiresIn: 60 * 15,
         },
       ),
@@ -34,11 +34,15 @@ export class AuthService {
           email: email,
         },
         {
-          secret: this.configService.get('REFRESH_TOKEN_SCRET'),
-          expiresIn: 60 * 15,
+          secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+          expiresIn: 60 * 60 * 24 * 7,
         },
       ),
     ]);
+    return {
+      acess_token: at,
+      refresh_token: rt,
+    };
   }
 
   public async signup(dto: AuthDto) {
@@ -50,7 +54,9 @@ export class AuthService {
           hash: hashedPassword,
         },
       });
-      return newUser;
+      const tokens = await this.getTokens(newUser.id, newUser.email);
+      console.log(tokens);
+      return tokens;
     } catch (err) {
       console.log(err);
     }

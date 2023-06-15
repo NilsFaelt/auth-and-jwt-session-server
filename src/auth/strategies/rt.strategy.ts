@@ -8,7 +8,7 @@ export class RtJwt extends PassportStrategy(Strategy, 'jwt-refresh') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('REFRESH_TOKEN_SCRET'),
+      secretOrKey: configService.get('REFRESH_TOKEN_SECRET'),
     });
   }
   validate(req: Request, payload: any) {

@@ -7,7 +7,7 @@ export class AtJwt extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('ACCESS_TOKEN_SCRET'),
+      secretOrKey: configService.get('ACCESS_TOKEN_SECRET'),
     });
   }
   validate(payload: any) {
