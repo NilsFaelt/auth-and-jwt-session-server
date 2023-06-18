@@ -8,7 +8,13 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto, Tokens } from './types';
-import { GetCurrentUser, GetCurrentUserId, Public, RtGuard } from './common';
+import {
+  GetCurrentUser,
+  GetCurrentUserId,
+  Public,
+  RtGuard,
+  UserInfo,
+} from './common';
 
 @Controller('auth')
 export class AuthController {
@@ -39,7 +45,9 @@ export class AuthController {
   public async refresh(
     @GetCurrentUserId('sub') userId: number,
     @GetCurrentUser('refreshToken') refreshToken: string,
+    @UserInfo('') user: any,
   ) {
+    console.log(user);
     return this.authService.refreshTokens(userId, refreshToken);
   }
 }
