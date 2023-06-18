@@ -1,10 +1,9 @@
-import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto, Tokens } from './types';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { HttpException } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
@@ -103,7 +102,13 @@ export class AuthService {
         id: userId,
       },
     });
+
     if (!user) throw new ForbiddenException('Acces denied');
-    const rtMatch = bcrypt(user.hashedRt, refreshToken);
+    const rtMatch = await bcrypt.compare(refreshToken, user.hashedRt);
+    if (!rtMatch) throw new ForbiddenException('Acces denied');
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.updateRtHash(user.id, tokens.refresh_token);
+
+    return tokens;
   }
 }
